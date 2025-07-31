@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Firma de Correo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Lora', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    form, .signature {
+      width: 600px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: bold;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      font-weight: bold;
+    }
+    .checkbox-label label {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .signature {
+      display: none;
+      padding: 20px;
+      background-color: #ffffff;
+      text-align: left;
+    }
+    .signature h2 {
+      margin: 0;
+      color: #242C4F;
+      font-size: 32px;
+      font-weight: bold; 
+    }
+    .signature p {
+      margin: 4px 0;
+      color: #45658D;
+      font-size: 16px; 
+      font-weight: 400; 
+    }
+    #displayEmail,
+    #displayPhone,
+    #displayWorkAddress {
+      color: #3c3c3b; 
+      font-size: 14px; 
+    }
+    .logos {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .logos img {
+      width: 300px;
+      margin-right: 0px;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="signatureForm">
+    <label for="name">Nombre y Apellido:</label>
+    <input type="text" id="name" required>
+
+    <div class="checkbox-label">
+      <label for="isSuperior">¿Tiene cargo de jefe o superior?</label>
+      <input type="checkbox" id="isSuperior" onclick="togglePositionField()">
+    </div>
+    
+    <label for="position">Cargo:</label>
+    <input type="text" id="position" placeholder="Escriba su cargo (Ej: 'Jefe de Prensa')" disabled>
+
+    <label for="department">Dirección (Área):</label>
+    <select id="department" onchange="toggleCustomDepartment(this)">
+        <option value="">Seleccione la dirección</option>
+        <option value="Coordinación de Control y Fiscalización Vial">Coordinación de Control y Fiscalización Vial</option>
+        <option value="Coordinación Interjurisdiccional y Normalización Normativa">Coordinación Interjurisdiccional y Normalización Normativa</option>
+        <option value="Dirección de Asuntos Legales y Jurídicos">Dirección de Asuntos Legales y Jurídicos</option>
+        <option value="Dirección de Capacitación y Campañas Viales">Dirección de Capacitación y Campañas Viales</option>
+        <option value="Dirección de Contabilidad">Dirección de Contabilidad</option>
+        <option value="Dirección de Informática">Dirección de Informática</option>
+        <option value="Dirección de Recursos Humanos">Dirección de Recursos Humanos</option>
+        <option value="Dirección Ejecutiva">Dirección Ejecutiva</option>
+        <option value="Dirección General de Administración">Dirección General de Administración</option>
+        <option value="Dirección Nacional de Coordinación Interjurisdiccional">Dirección Nacional de Coordinación Interjurisdiccional</option>
+        <option value="Dirección Nacional de Observatorio Vial">Dirección Nacional de Observatorio Vial</option>
+        <option value="Dirección Nacional Licencias de Conducir y Antecedentes de Tránsito">Dirección Nacional Licencias de Conducir y Antecedentes de Tránsito</option>
+        <option value="Estadística Vial">Estadística Vial</option>
+        <option value="Estudios en Seguridad de Infraestructura Vial y del Automotor">Estudios en Seguridad de Infraestructura Vial y del Automotor</option>
+        <option value="Investigación Accidentológica">Investigación Accidentológica</option>
+        <option value="Sistema Nacional de Antecedentes de Tránsito">Sistema Nacional de Antecedentes de Tránsito</option>
+        <option value="Sistema Nacional de Infracciones">Sistema Nacional de Infracciones</option>
+        <option value="Sistema Nacional de Licencias de Conducir">Sistema Nacional de Licencias de Conducir</option>
+        <option value="Unidad de Auditoría Interna">Unidad de Auditoría Interna</option>
+        <option value="Otro">Otro (Especificar)</option>
+        
+    </select>
+    <input type="text" id="customDepartment" style="display:none;" placeholder="Especifique la dirección. COMPLETAR">
+
+    <div class="checkbox-label">
+      <label for="addPhone">¿Desea incluir su número de teléfono?</label>
+      <input type="checkbox" id="addPhone" onclick="togglePhoneField()">
+    </div>
+    <input type="tel" id="phone" placeholder="Teléfono" style="display:none;">
+    
+    <label for="email">Correo electrónico:</label>
+    <input type="email" id="email" required>
+
+    <label for="workAddress">Domicilio laboral:</label>
+    <select id="workAddress" onchange="toggleCustomAddress(this)">
+      <option value="">Seleccione el domicilio laboral</option>
+        <option value="Otro">Otro (Especificar)</option>
+    </select>
+    <input type="text" id="customAddress" style="display:none;" placeholder="Especifique el domicilio laboral. COMPLETAR">
+
+    <label for="logo1">Logo:</label>
+    <input type="file" id="logo1" accept="image/*" required>
+
+    <button type="button" onclick="generateSignature()">Generar Firma</button>
+  </form>
+  
+  <div class="signature" id="signature">
+    <h2 id="displayName">Nombre y Apellido</h2>
+    <p id="displayPosition" class="position" style="display:none;">Cargo</p>
+    <p id="displayDepartment">Dirección</p>
+    <br>
+    <p id="displayEmail" class="email">Correo electrónico</p>
+    <p id="displayPhone" style="display:none;">Tel: <span id="displayPhoneNumber"></span></p>
+    <p id="displayWorkAddress">Domicilio laboral</p>
+    <div class="logos">
+      <img id="logoDisplay1" alt="Logo 1" style="display:none;">
+    </div>
+  </div>
+
+  <button onclick="exportToImage()" style="display:none;" id="exportButton">Exportar como Imagen</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    function togglePositionField() {
+      const isSuperior = document.getElementById("isSuperior").checked;
+      document.getElementById("position").disabled = !isSuperior;
+    }
+
+    function toggleCustomDepartment(selectElement) {
+      document.getElementById("customDepartment").style.display = selectElement.value === "Otro" ? "block" : "none";
+    }
+
+    function togglePhoneField() {
+      document.getElementById("phone").style.display = document.getElementById("addPhone").checked ? "block" : "none";
+    }
+
+    function toggleCustomAddress(selectElement) {
+      document.getElementById("customAddress").style.display = selectElement.value === "Otro" ? "block" : "none";
+    }
+
+    function generateSignature() {
+      const name = document.getElementById("name").value;
+      const position = document.getElementById("position").value;
+      const department = document.getElementById("department").value;
+      const customDepartment = document.getElementById("customDepartment").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const workAddress = document.getElementById("workAddress").value;
+      const customAddress = document.getElementById("customAddress").value;
+
+      document.getElementById("displayName").textContent = name;
+
+      if (position) {
+        document.getElementById("displayPosition").textContent = position;
+        document.getElementById("displayPosition").style.display = "block";
+      } else {
+        document.getElementById("displayPosition").style.display = "none";
+      }
+
+      document.getElementById("displayDepartment").textContent = customDepartment || department || "Dirección no especificada";
+      document.getElementById("displayEmail").textContent = email;
+
+      if (phone) {
+        document.getElementById("displayPhone").style.display = "block";
+        document.getElementById("displayPhoneNumber").textContent = phone;
+      } else {
+        document.getElementById("displayPhone").style.display = "none";
+      }
+
+      document.getElementById("displayWorkAddress").textContent = customAddress || workAddress || "Domicilio no especificado";
+
+      const logo1 = document.getElementById("logo1").files[0];
+      if (logo1) {
+        const logo1URL = URL.createObjectURL(logo1);
+        const logoDisplay1 = document.getElementById("logoDisplay1");
+        logoDisplay1.src = logo1URL;
+        logoDisplay1.style.display = "block";
+      }
+
+      document.getElementById("signature").style.display = "block";
+      document.getElementById("exportButton").style.display = "block";
+    }
+
+    function exportToImage() {
+      html2canvas(document.getElementById("signature")).then(canvas => {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL();
+        link.download = 'firma.png';
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
